@@ -1,5 +1,5 @@
 /*
- * xlate_module.c - Device driver module for xlate device.
+ * string_module.c - Device driver module for string device.
  */
 
 #include <sys/param.h>
@@ -12,80 +12,80 @@
 #include <sys/module.h>
 #include <sys/proc.h>
 
-static d_open_t		xlate_open;
-static d_close_t	xlate_close;
-static d_read_t		xlate_read;
-static d_write_t	xlate_write;
-static d_ioctl_t	xlate_ioctl;
+static d_open_t		string_open;
+static d_close_t	string_close;
+static d_read_t		string_read;
+static d_write_t	string_write;
+static d_ioctl_t	string_ioctl;
 
 static struct cdev *sdev;
 
-static struct cdevsw xlate_cdevsw = {
+static struct cdevsw string_cdevsw = {
 	.d_version =	D_VERSION,
-	.d_open =	xlate_open,
-	.d_close =	xlate_close,
-	.d_read =	xlate_read,
-	.d_write =	xlate_write,
-	.d_ioctl =	xlate_ioctl,
-	.d_name =	"xlate",
+	.d_open =	string_open,
+	.d_close =	string_close,
+	.d_read =	string_read,
+	.d_write =	string_write,
+	.d_ioctl =	string_ioctl,
+	.d_name =	"string",
 };
 
 static int
-xlate_open(struct cdev *dev, int flag, int mode, struct thread *td)
+string_open(struct cdev *dev, int flag, int mode, struct thread *td)
 {
 #ifdef XLATE_DEBUG
-	uprintf("xlate_open() called\n");
+	uprintf("string_open() called\n");
 #endif
 	return(0);
 }
 
 static int
-xlate_close(struct cdev *dev, int flag, int mode, struct thread *td)
+string_close(struct cdev *dev, int flag, int mode, struct thread *td)
 {
 #ifdef XLATE_DEBUG
-	uprintf("xlate_close() called\n");
+	uprintf("string_close() called\n");
 #endif
 	return(0);
 }
 
 static int
-xlate_read(struct cdev *dev, struct uio *uio, int flags)
+string_read(struct cdev *dev, struct uio *uio, int flags)
 {
-#ifdef XLATE_DEBUG
-	uprintf("xlate_read() called\n");
+#ifdef STRING_DEBUG
+	uprintf("string_read() called\n");
 #endif
 	return(0);
 }
 
 static int
-xlate_write(struct cdev *dev, struct uio *uio, int flags)
+string_write(struct cdev *dev, struct uio *uio, int flags)
 {
-#ifdef XLATE_DEBUG
-	uprintf("xlate_write() called\n");
+#ifdef STRING_DEBUG
+	uprintf("string_write() called\n");
 #endif
 	return(0);
 }
 
 static int
-xlate_ioctl(struct cdev *dev, u_long cmd, caddr_t arg, int flag, struct thread *td)
+string_ioctl(struct cdev *dev, u_long cmd, caddr_t arg, int flag, struct thread *td)
 {
-#ifdef XLATE_DEBUG
-	uprintf("xlate_ioctl() called\n");
+#ifdef STRING_DEBUG
+	uprintf("string_ioctl() called\n");
 #endif
 	return(0);
 }
 
 static int
-xlate_load(module_t mod, int what, void *arg)
+string_load(module_t mod, int what, void *arg)
 {
-#ifdef XLATE_DEBUG
-	uprintf("xlate_load() called\n");
+#ifdef STRING_DEBUG
+	uprintf("string_load() called\n");
 #endif
 	int error = 0;
 	switch(what) {
 		case MOD_LOAD:
-			sdev = make_dev(&xlate_cdevsw, 0, UID_ROOT, GID_WHEEL,
-				0666, "xlate");
+			sdev = make_dev(&string_cdevsw, 0, UID_ROOT, GID_WHEEL,
+				0666, "string");
 			break;
 		case MOD_UNLOAD:
 			destroy_dev(sdev);
@@ -97,4 +97,4 @@ xlate_load(module_t mod, int what, void *arg)
 	return(error);
 }
 
-DEV_MODULE(xlate_module, xlate_load, NULL);
+DEV_MODULE(string_module, xlate_load, NULL);
