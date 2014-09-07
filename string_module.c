@@ -33,7 +33,7 @@ static struct cdevsw string_cdevsw = {
 static int
 string_open(struct cdev *dev, int flag, int mode, struct thread *td)
 {
-#ifdef XLATE_DEBUG
+#ifdef STRING_DEBUG
 	uprintf("string_open() called\n");
 #endif
 	return(0);
@@ -42,7 +42,7 @@ string_open(struct cdev *dev, int flag, int mode, struct thread *td)
 static int
 string_close(struct cdev *dev, int flag, int mode, struct thread *td)
 {
-#ifdef XLATE_DEBUG
+#ifdef STRING_DEBUG
 	uprintf("string_close() called\n");
 #endif
 	return(0);
