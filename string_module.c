@@ -29,7 +29,7 @@ static struct cdevsw string_cdevsw = {
 	.d_ioctl =	string_ioctl,
 	.d_name =	"string",
 };
-
+char *message = "Hello World.";
 static int
 string_open(struct cdev *dev, int flag, int mode, struct thread *td)
 {
@@ -54,7 +54,15 @@ string_read(struct cdev *dev, struct uio *uio, int flags)
 #ifdef STRING_DEBUG
 	uprintf("string_read() called\n");
 #endif
-	return(0);
+
+	char *ptr;
+
+	if(uio->uio_offset >= strlen(message))
+		return(0);
+	ptr = message;
+	ptr += uio->uio_offset;
+	return(uiomove(ptr, strlen(ptr) + 1, uio));
+
 }
 
 static int
