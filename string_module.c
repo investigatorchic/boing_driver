@@ -97,4 +97,4 @@ string_load(module_t mod, int what, void *arg)
 	return(error);
 }
 
-DEV_MODULE(string_module, xlate_load, NULL);
+DEV_MODULE(string_module, string_load, NULL);

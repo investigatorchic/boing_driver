@@ -1,5 +1,5 @@
 #
-# Makefile for /dev/xlate module
+# Makefile for /dev/string module
 #
 
 #
@@ -7,8 +7,8 @@
 #
 CFLAGS+=-DXLATE_DEBUG
 
-KMOD=xlate_module
-SRCS=xlate_module.c
+KMOD=string_module
+SRCS=string_module.c
 SRCS+=device_if.h bus_if.h
 
 .include <bsd.kmod.mk>
