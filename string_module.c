@@ -78,14 +78,14 @@ string_read(struct cdev *dev, struct uio *uio, int flags)
 	uprintf("string_read() called\n");
 #endif
 
-	char *ptr;
-
-	if(uio->uio_offset >= strlen(message))
-		return(0);
-	ptr = message;
-	ptr += uio->uio_offset;
-	return(uiomove(ptr, strlen(ptr) + 1, uio));
-
+	int result = 0, size;
+	int data_available = 0;
+  	if ( buf_length - uio->uio_offset > 0 ) {
+    		data_available = buf_length - uio->uio_offset;
+  	}
+  	size = MIN(uio->uio_resid, data_available);
+	result = uiomove(message + uio->uio_offset, size, uio);
+	return result;
 }
 
 static int
@@ -94,9 +94,25 @@ string_write(struct cdev *dev, struct uio *uio, int flags)
 #ifdef STRING_DEBUG
 	uprintf("string_write() called\n");
 #endif
-	int result = 0;
-	
-	return(0);
+	int result = 0, size;
+	int data_available = 0;
+	if ( MAX_BUFFER-1 - uio->uio_offset > 0 ) {
+                data_available = MAX_BUFFER-1 - uio->uio_offset;
+        }
+	if (size == 0)
+                return error;
+
+	if (size > MAX_BUFFER) {
+		return EPERM;
+	}
+	size = MIN(uio->uio_resid, data_available);	
+	result = uiomove(message, size, uio);
+	if (result) {
+		return result;
+	}
+	message[size] = '\0';
+	buf_length = size;
+        return result;
 }
 
 static int
@@ -117,10 +133,20 @@ string_load(module_t mod, int what, void *arg)
 	int error = 0;
 	switch(what) {
 		case MOD_LOAD:
+			if (message) {
+			mtx_init(&slock, "string_lock", NULL, MTX_DEF);
 			sdev = make_dev(&string_cdevsw, 0, UID_ROOT, GID_WHEEL,
 				0666, "string");
+			buf_length = strlen(DEFAULT_MSG);
+			strncpy(message, DEFAULT_MSG, buf_length);
+			}
+			else {
+			error = ENOMEM;
+			}
 			break;
 		case MOD_UNLOAD:
+			if (message) free(message, M_STRBUF);
+			mtx_destroy(&slock);
 			destroy_dev(sdev);
 			break;
 		default:
