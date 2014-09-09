@@ -11,6 +11,11 @@
 #include <sys/malloc.h>
 #include <sys/module.h>
 #include <sys/proc.h>
+#include <sys/mutex.h>
+
+#define MAX_BUFFER 50
+#define DEFAULT_MSG "Hello World."
+MALLOC_DEFINE(M_STRBUF, "string_buffer", "data storage for /dev/string");
 
 static d_open_t		string_open;
 static d_close_t	string_close;
@@ -29,13 +34,24 @@ static struct cdevsw string_cdevsw = {
 	.d_ioctl =	string_ioctl,
 	.d_name =	"string",
 };
-char *message = "Hello World.";
+static char *message;
+static int locked=0;
+static int buf_length=0;
+static struct mtx slock;
+
 static int
 string_open(struct cdev *dev, int flag, int mode, struct thread *td)
 {
 #ifdef STRING_DEBUG
 	uprintf("string_open() called\n");
 #endif
+	mtx_lock(&slock);
+	if (locked) {
+		mtx_unlock(&slock);
+		return EPERM;
+	}
+	locked++;
+	mtx_unlock(&slock);
 	return(0);
 }
 
@@ -45,7 +61,14 @@ string_close(struct cdev *dev, int flag, int mode, struct thread *td)
 #ifdef STRING_DEBUG
 	uprintf("string_close() called\n");
 #endif
-	return(0);
+	int result = EBADF;
+	mtx_lock(&slock);
+	if (locked) {
+		locked--;
+		result = 0;
+	}
+	mtx_unlock(&slock);
+	return(result);
 }
 
 static int
@@ -71,6 +94,8 @@ string_write(struct cdev *dev, struct uio *uio, int flags)
 #ifdef STRING_DEBUG
 	uprintf("string_write() called\n");
 #endif
+	int result = 0;
+	
 	return(0);
 }
 
