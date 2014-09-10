@@ -94,13 +94,14 @@ string_write(struct cdev *dev, struct uio *uio, int flags)
 #ifdef STRING_DEBUG
 	uprintf("string_write() called\n");
 #endif
-	int result = 0, size;
+	int result = 0;
+	int size = 0;
 	int data_available = 0;
 	if ( MAX_BUFFER-1 - uio->uio_offset > 0 ) {
                 data_available = MAX_BUFFER-1 - uio->uio_offset;
         }
 	if (size == 0)
-                return error;
+                return result;
 
 	if (size > MAX_BUFFER) {
 		return EPERM;
@@ -133,6 +134,7 @@ string_load(module_t mod, int what, void *arg)
 	int error = 0;
 	switch(what) {
 		case MOD_LOAD:
+			message = malloc(MAX_BUFFER, M_STRBUF, M_WAITOK);
 			if (message) {
 			mtx_init(&slock, "string_lock", NULL, MTX_DEF);
 			sdev = make_dev(&string_cdevsw, 0, UID_ROOT, GID_WHEEL,
