@@ -95,24 +95,23 @@ string_write(struct cdev *dev, struct uio *uio, int flags)
 	uprintf("string_write() called\n");
 #endif
 	int result = 0;
-	int size = 0;
 	int data_available = 0;
 	if ( MAX_BUFFER-1 - uio->uio_offset > 0 ) {
                 data_available = MAX_BUFFER-1 - uio->uio_offset;
         }
-	if (size == 0)
+	if (data_available == 0)
                 return result;
 
-	if (size > MAX_BUFFER) {
+	if (data_available > MAX_BUFFER) {
 		return EPERM;
 	}
-	size = MIN(uio->uio_resid, data_available);	
-	result = uiomove(message, size, uio);
+	data_available = MIN(uio->uio_resid, data_available);	
+	result = uiomove(message, data_available, uio);
 	if (result) {
 		return result;
 	}
-	message[size] = '\0';
-	buf_length = size;
+	message[data_available] = '\0';
+	buf_length = data_available;
         return result;
 }
 
